@@ -1,12 +1,23 @@
 defmodule QbProxyWeb.Router do
   use QbProxyWeb, :router
 
+  require Logger
+
   pipeline :api do
     plug :accepts, ["json"]
   end
 
   scope "/api", QbProxyWeb do
     pipe_through :api
+  end
+
+  forward "/", ReverseProxyPlug,
+    upstream: "https://quickbooks.api.intuit.com/",
+    response_mode: :buffer,
+    error_callback: &__MODULE__.log_reverse_proxy_error/1
+
+  def log_reverse_proxy_error(error) do
+    Logger.warning("ReverseProxyPlug network error: #{inspect(error)}")
   end
 
   # Enable LiveDashboard in development

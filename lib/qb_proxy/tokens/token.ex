@@ -3,6 +3,7 @@ defmodule QbProxy.Tokens.Token do
 
   @primary_key false
   schema "tokens" do
+    field :id, :id, primary_key: true
     field :key, :string
     field :value, :string
   end

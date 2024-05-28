@@ -1,3 +1,79 @@
+defmodule RefreshAccessToken do
+  @client_id "ABXTy2UMjulekpUCKG9X3cprZZTKGseVM67S69SxJUgwwJ0wQi"
+  @client_secret "Qc4uxzhDIyrVsozU0qn2KaxcgJSB2JnBpJZYYBZb"
+
+  def get_bearer_token(_is_sandbox \\ false) do
+    base_url = "https://oauth.platform.intuit.com"
+    url = base_url <> "/oauth2/v1/tokens/bearer"
+
+    refresh_token = QbProxy.Tokens.get_token_value("refresh_token")
+
+    IO.inspect(refresh_token)
+    params = [{"grant_type", "refresh_token"}, {"refresh_token", refresh_token}]
+
+    headers = [
+      {"Accept", "application/json"},
+      {"Content-Type", "application/x-www-form-urlencoded"},
+      {"Authorization", "Basic " <> encode_credentials(@client_id, @client_secret)}
+    ]
+
+    case HTTPoison.post(url, {:form, params}, headers) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+        body
+        |> Jason.decode!()
+        |> IO.inspect()
+        |> case do
+          %{"access_token" => access_token, "refresh_token" => new_refresh_token} ->
+            QbProxy.Tokens.upsert_token("access_token", access_token)
+
+            if new_refresh_token != refresh_token do
+              QbProxy.Tokens.upsert_token("refresh_token", new_refresh_token)
+            end
+
+            access_token
+        end
+
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        {:error, reason}
+    end
+  end
+
+  defp encode_credentials(client_id, client_secret) do
+    credentials = "#{client_id}:#{client_secret}" |> :erlang.iolist_to_binary()
+    Base.encode64(credentials)
+  end
+end
+
+defmodule CustomHeaderPlug do
+  import Plug.Conn
+
+  def init(opts), do: opts
+
+  def call(conn, _opts) do
+    register_before_send(conn, fn conn ->
+      IO.inspect(conn)
+      response_body = conn.resp_body
+      IO.puts("HERE")
+      IO.puts(response_body)
+      conn
+    end)
+
+    #    conn
+    #   |> put_resp_header("custom_header", "custom_value")
+    #   |> put_resp_header("another_header", "another_value")
+  end
+end
+
+defmodule CacheBodyReader do
+  alias Plug.Conn
+  require Logger
+
+  def read_body(conn, opts) do
+    Logger.warning("HERE!!! #{inspect(conn)}\n#{inspect(opts)}\n")
+    Conn.read_body(conn, opts)
+  end
+end
+
 defmodule QbProxyWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :qb_proxy
 
@@ -39,13 +115,18 @@ defmodule QbProxyWeb.Endpoint do
   plug Plug.RequestId
   plug Plug.Telemetry, event_prefix: [:phoenix, :endpoint]
 
-  plug Plug.Parsers,
-    parsers: [:urlencoded, :multipart, :json],
-    pass: ["*/*"],
-    json_decoder: Phoenix.json_library()
+  # plug Plug.Parsers,
+  #   parsers: [:urlencoded, :multipart, :json],
+  #   pass: ["*/*"],
+  # ,
+  #   json_decoder: Phoenix.json_library()
+
+  # body_reader: {CacheBodyReader, :read_body, []}
 
   plug Plug.MethodOverride
   plug Plug.Head
   plug Plug.Session, @session_options
+
+  plug CustomHeaderPlug
   plug QbProxyWeb.Router
 end

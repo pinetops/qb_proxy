@@ -1,0 +1,23 @@
+<!DOCTYPE html><html lang="en" dir="ltr"><head><meta charSet="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>RosterStream</title><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="true"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&amp;display=swap"/><link rel="stylesheet" href="/build/_assets/tailwind-CDVQWS4P.css"/><link rel="icon" type="image/x-icon" href="/images/favicon.ico"/></head><body><section id="root" class="grid h-screen"><main class="bg-mb11 col-span-2"><div class="flex flex-col h-screen"><section class="flex justify-center text-white text-gray-700 p-xs bg-mb2"><img src="/images/logo.svg" alt="Roster Stream logo" class="w-[50px]"/></section><section class="flex flex-col items-center justify-center grow"><img src="/images/eddie-login.svg" class="object-contain"/><form class="mt-[50px]" action="/auth/login" method="post"><button class="rounded border-[2px] font-semibold relative truncate text-mb bg-orange border-orange hover:bg-carrot hover:border-carrot active:border-carrot h-[54px] px-[15px] text-m text-bold"><span class="pointer-events-none flex items-center">Continue to Login</span></button></form></section></div><section class="fixed top-[50px] left-1/2 z-20 -translate-x-1/2"></section></main></section><script>((STORAGE_KEY, restoreKey) => {
+    if (!window.history.state || !window.history.state.key) {
+      let key = Math.random().toString(32).slice(2);
+      window.history.replaceState({
+        key
+      }, "");
+    }
+    try {
+      let positions = JSON.parse(sessionStorage.getItem(STORAGE_KEY) || "{}");
+      let storedY = positions[restoreKey || window.history.state.key];
+      if (typeof storedY === "number") {
+        window.scrollTo(0, storedY);
+      }
+    } catch (error) {
+      console.error(error);
+      sessionStorage.removeItem(STORAGE_KEY);
+    }
+  })("positions", null)</script><link rel="modulepreload" href="/build/entry.client-6COD6WXI.js"/><link rel="modulepreload" href="/build/_shared/chunk-DLRYOY2I.js"/><link rel="modulepreload" href="/build/_shared/chunk-4IYDLWSH.js"/><link rel="modulepreload" href="/build/_shared/chunk-X4UAS7LU.js"/><link rel="modulepreload" href="/build/_shared/chunk-JCVME6Y7.js"/><link rel="modulepreload" href="/build/_shared/chunk-QYPHMTDR.js"/><link rel="modulepreload" href="/build/_shared/chunk-EY2ZLVYG.js"/><link rel="modulepreload" href="/build/_shared/chunk-XDMRC4Q6.js"/><link rel="modulepreload" href="/build/_shared/chunk-MMY57I5X.js"/><link rel="modulepreload" href="/build/_shared/chunk-EKC5QZSW.js"/><link rel="modulepreload" href="/build/_shared/chunk-JW4P2HUS.js"/><link rel="modulepreload" href="/build/_shared/chunk-R5DSYF3L.js"/><link rel="modulepreload" href="/build/_shared/chunk-UOC2EUD4.js"/><link rel="modulepreload" href="/build/_shared/chunk-W3UDNGBN.js"/><link rel="modulepreload" href="/build/root-XNVG5YLJ.js"/><link rel="modulepreload" href="/build/routes/index-AGFPJWDZ.js"/><script>window.__remixContext = {"url":"/","state":{"loaderData":{"root":{"locale":"en","user":null,"notification":null,"host":"app.us-east-1.rosterstream.com","zendeskUrl":"https://rs-prod-env.us.auth0.com/samlp/i7jzDiwQXL6lqADJAPufXR2P4kGVEPfo","nodeEnv":"production","sentryTrace":"64f4dad5f27b4f7698ae8bc5fc4f5997-bd1ca70dbf189814-1","sentryBaggage":"sentry-environment=production,sentry-public_key=907dbce4e2265e717546708d2450264a,sentry-trace_id=64f4dad5f27b4f7698ae8bc5fc4f5997,sentry-sample_rate=0.1,sentry-transaction=root,sentry-sampled=true","remixVersion":1},"routes/index":{}},"actionData":null,"errors":null},"future":{"v2_dev":true,"unstable_postcss":false,"unstable_tailwind":false,"v2_errorBoundary":true,"v2_headers":false,"v2_meta":true,"v2_normalizeFormMethod":true,"v2_routeConvention":false}};</script><script type="module" async="">import "/build/manifest-4540B546.js";
+import * as route0 from "/build/root-XNVG5YLJ.js";
+import * as route1 from "/build/routes/index-AGFPJWDZ.js";
+window.__remixRouteModules = {"root":route0,"routes/index":route1};
+
+import("/build/entry.client-6COD6WXI.js");</script><script src="https://status.ednition.com/embed/script.js"></script></body></html>
