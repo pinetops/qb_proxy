@@ -44,38 +44,25 @@ defmodule RefreshAccessToken do
   end
 end
 
-defmodule CustomHeaderPlug do
+defmodule ReplaceAuthorizationPlug do
   import Plug.Conn
 
-  def init(opts), do: opts
+  def init(default), do: default
 
   def call(conn, _opts) do
-    register_before_send(conn, fn conn ->
-      IO.inspect(conn)
-      response_body = conn.resp_body
-      IO.puts("HERE")
-      IO.puts(response_body)
-      conn
-    end)
-
-    #    conn
-    #   |> put_resp_header("custom_header", "custom_value")
-    #   |> put_resp_header("another_header", "another_value")
-  end
-end
-
-defmodule CacheBodyReader do
-  alias Plug.Conn
-  require Logger
-
-  def read_body(conn, opts) do
-    Logger.warning("HERE!!! #{inspect(conn)}\n#{inspect(opts)}\n")
-    Conn.read_body(conn, opts)
+    conn
+    |> put_req_header(
+      "authorization",
+      "Bearer " <> QbProxy.Tokens.get_token_value("access_token")
+    )
   end
 end
 
 defmodule QbProxyWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :qb_proxy
+
+  @basic_auth_username "your_username"
+  @basic_auth_password "your_password"
 
   # The session will be stored in the cookie and signed,
   # this means its contents can be read but not tampered with.
@@ -127,6 +114,17 @@ defmodule QbProxyWeb.Endpoint do
   plug Plug.Head
   plug Plug.Session, @session_options
 
-  plug CustomHeaderPlug
+  plug :basic_auth
+  plug ReplaceAuthorizationPlug
   plug QbProxyWeb.Router
+
+  defp basic_auth(conn, _opts) do
+    case Plug.BasicAuth.basic_auth(conn,
+           username: @basic_auth_username,
+           password: @basic_auth_password
+         ) do
+      :ok -> conn
+      :error -> conn |> send_resp(401, "Unauthorized") |> halt()
+    end
+  end
 end
