@@ -1,3 +1,22 @@
+defmodule RedirectLocal do
+  import Plug.Conn
+  import Plug.Conn, only: [put_resp_header: 3, send_resp: 3]
+
+  def init(opts), do: opts
+
+  def call(conn, _opts) do
+    # Remove '/redirect' from the request path before redirecting
+    target_path = String.replace_prefix(conn.request_path, "/redirect", "")
+
+    target =
+      "http://localhost:4000" <> target_path <> "?" <> URI.encode_query(conn.query_params)
+
+    conn
+    |> put_resp_header("location", target)
+    |> send_resp(302, "")
+  end
+end
+
 defmodule QbProxyWeb.Router do
   use QbProxyWeb, :router
 
@@ -10,6 +29,8 @@ defmodule QbProxyWeb.Router do
   scope "/api", QbProxyWeb do
     pipe_through :api
   end
+
+  forward "/redirect", RedirectLocal
 
   forward "/", ReverseProxyPlug,
     upstream: "https://quickbooks.api.intuit.com/",

@@ -44,20 +44,6 @@ defmodule RefreshAccessToken do
   end
 end
 
-defmodule ReplaceAuthorizationPlug do
-  import Plug.Conn
-
-  def init(default), do: default
-
-  def call(conn, _opts) do
-    conn
-    |> put_req_header(
-      "authorization",
-      "Bearer " <> QbProxy.Tokens.get_token_value("access_token")
-    )
-  end
-end
-
 defmodule QbProxyWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :qb_proxy
 
@@ -114,17 +100,5 @@ defmodule QbProxyWeb.Endpoint do
   plug Plug.Head
   plug Plug.Session, @session_options
 
-  plug :basic_auth
-  plug ReplaceAuthorizationPlug
   plug QbProxyWeb.Router
-
-  defp basic_auth(conn, _opts) do
-    case Plug.BasicAuth.basic_auth(conn,
-           username: @basic_auth_username,
-           password: @basic_auth_password
-         ) do
-      :ok -> conn
-      :error -> conn |> send_resp(401, "Unauthorized") |> halt()
-    end
-  end
 end
